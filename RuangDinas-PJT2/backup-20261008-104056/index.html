@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#f5f7f5" />
+  <title>Ruang Dinas — Anggaran SPPD</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <aside>
+      <div class="brand"><div class="brand-mark">↗</div><div class="brand-text"><strong>ruang dinas</strong><small>PERJALANAN & ANGGARAN</small></div></div>
+      <div class="nav-label">Workspace</div>
+      <div class="nav-item active"><span class="icon">◫</span><span class="label">Anggaran SPPD</span></div>
+      <div class="nav-label" style="margin-top:22px">Panduan</div>
+      <div class="nav-item" id="navGuide"><span class="icon">ⓘ</span><span class="label">Cara penggunaan</span></div>
+      <div class="aside-bottom"><b>Ruang Dinas v1.0</b>Perencanaan biaya perjalanan dinas lebih praktis.</div>
+    </aside>
+    <main>
+      <header class="topbar"><div class="crumb">Workspace <span style="margin:0 8px;color:#c3cbc6">/</span> <b>Anggaran SPPD</b></div><div class="top-actions"><span class="today" id="today"></span><div class="avatar">AD</div></div></header>
+      <div class="content">
+        <div class="heading"><div><div class="eyebrow">PERENCANAAN PERJALANAN DINAS</div><h1>Anggaran SPPD</h1><p>Hitung estimasi biaya pelatihan dan perjalanan dalam beberapa langkah.</p></div><button class="btn" id="manageEmployees" type="button">＋ &nbsp; Kelola karyawan</button></div>
+        <section class="stats">
+          <div class="stat"><label>Jenis kegiatan</label><strong>Pelatihan</strong><span class="trend">Online / Offline / Gabungan</span></div>
+          <div class="stat"><label>Metode perhitungan</label><strong>Otomatis</strong><span class="trend">Real-time</span></div>
+          <div class="stat"><label>Tarif perjalanan</label><strong id="rateCount">—</strong><span class="trend">Jenis · jabatan · lokasi</span></div>
+        </section>
+        <section class="db-alert" id="dbAlert" role="alert" aria-live="polite" hidden>
+          <strong>Database belum tersambung</strong>
+          <p id="dbAlertMessage">Periksa konfigurasi database pada deployment.</p>
+          <p>Tanpa PostgreSQL, aplikasi membaca data langsung dari <code>sppd.db</code>. Pastikan file tersebut ikut terunggah di root proyek. Perubahan data perlu dimasukkan ke database lalu dideploy ulang.</p>
+          <button class="btn" id="retryDatabase" type="button">Coba lagi</button>
+        </section>
+        <div class="layout">
+          <section class="card form-card">
+            <div class="card-head"><h2>Detail perjalanan</h2><span class="step">LANGKAH 1 DARI 1</span></div>
+            <div class="form-grid">
+              <div class="field full"><label for="employeeSearch">Cari karyawan <span style="color:#aab4af;font-weight:400">(ketik NIK atau nama)</span></label><div class="employee-search"><input id="employeeSearch" autocomplete="off" placeholder="Contoh: 3201… atau Aditya Pratama"/><div class="employee-results" id="employeeResults"></div></div><input id="person" type="hidden"/><div class="employee-detail" id="employeeDetail">Pilih karyawan dari hasil pencarian untuk menampilkan NIK, jabatan, dan uang hariannya.</div></div>
+              <div class="field"><label for="tripType">Jenis perjalanan dinas</label><select id="tripType"><option value="Dalam Negeri">Dalam Negeri</option><option value="Luar Negeri">Luar Negeri</option></select></div>
+              <div class="field"><label id="placeLabel" for="place">Provinsi/daerah pelatihan</label><select id="place"></select></div>
+              <div class="field full" id="manualTransportField" hidden><label for="transportChoice">Biaya transportasi BOD-1 sampai BOD-5</label><select id="transportChoice"><option value="">Pilih nominal transportasi</option><option value="300000">Rp300.000</option><option value="400000">Rp400.000</option><option value="500000">Rp500.000</option><option value="manual">Masukkan manual</option></select><div id="manualTransportAmountField" hidden style="margin-top:10px"><label for="manualTransport">Nominal manual</label><div class="suffix-wrap"><span class="suffix" style="left:14px;right:auto">Rp</span><input id="manualTransport" type="number" min="0" step="1000" placeholder="Masukkan biaya transportasi" style="padding-left:42px"/></div></div></div>
+              <div class="field full" id="lodgingField"><label for="lodgingCost">Biaya penginapan total (isi manual)</label><div class="suffix-wrap"><span class="suffix" style="left:14px;right:auto">Rp</span><input id="lodgingCost" type="number" min="0" step="1000" placeholder="Masukkan total biaya penginapan" style="padding-left:42px"/></div><small id="hotelClassNote" class="import-help">Pilih karyawan untuk menampilkan kelas hotel sesuai jabatan.</small></div>
+              <div class="field full"><label for="registrationFee">Biaya pendaftaran pelatihan (isi manual)</label><div class="suffix-wrap"><span class="suffix" style="left:14px;right:auto">Rp</span><input id="registrationFee" type="number" min="0" step="1000" placeholder="Masukkan biaya pendaftaran pelatihan" style="padding-left:42px"/></div><small class="import-help">Dihitung satu kali untuk pelatihan ini.</small></div>
+              <div class="field full"><label>Jenis pelatihan</label><div class="segmented"><button type="button" class="active" data-mode="offline">◉ &nbsp; Offline</button><button type="button" data-mode="online">◎ &nbsp; Online</button><button type="button" data-mode="gabungan">◉◉ &nbsp; Gabungan</button></div></div>
+              <div class="field" id="singleDurationField"><label for="days">Lama pelatihan</label><div class="suffix-wrap"><input id="days" type="number" min="1" max="365" value="3"/><span class="suffix">hari</span></div></div>
+              <div class="field" id="offlineDurationField" hidden><label for="offlineDays">Lama kegiatan offline</label><div class="suffix-wrap"><input id="offlineDays" type="number" min="1" max="365" value="3"/><span class="suffix">hari</span></div></div>
+              <div class="field" id="onlineDurationField" hidden><label for="onlineDays">Lama kegiatan online</label><div class="suffix-wrap"><input id="onlineDays" type="number" min="1" max="365" value="2"/><span class="suffix">hari</span></div></div>
+              <div class="note" id="modeNote">Biaya pelatihan offline termasuk dalam uang harian. Penginapan dimasukkan manual sesuai kelas hotel jabatan.</div>
+            </div>
+            <div class="form-footer"><span class="autosave">✓ &nbsp; Perhitungan diperbarui otomatis</span><button class="btn text" id="resetBtn">Atur ulang ↺</button></div>
+          </section>
+          <aside class="card result">
+            <div class="result-top"><h2>Ringkasan anggaran</h2><span class="live">LIVE</span></div>
+            <div class="total"><small>Total estimasi anggaran</small><strong id="grandTotal">Rp 0</strong></div>
+            <div class="breakdown-title">Rincian biaya <span id="perPerson" style="float:right;letter-spacing:0;text-transform:none;font-weight:500"></span></div>
+            <div id="breakdown"></div>
+            <button class="btn primary" id="exportBtn">↓ &nbsp; Unduh Excel (.xlsx)</button>
+            <p class="hint">Uang harian mengikuti jabatan dan daerah. Biaya penginapan manual mengikuti kelas hotel jabatan dan masuk ke total.</p>
+          </aside>
+        </div>
+      </div>
+    </main>
+  </div>
+  <div class="modal-backdrop" id="modalBackdrop"><div class="modal"><div class="modal-header"><h2 id="modalTitle">Kelola data karyawan</h2><button class="close" id="closeModal" type="button">×</button></div><div class="modal-body" id="modalBody"></div><div class="modal-actions"><small id="modalFootnote">Impor menambahkan karyawan baru atau memperbarui data berdasarkan NIK.</small></div></div></div>
+  <div class="toast" id="toast"></div>
+  <script src="app.js?v=43" defer></script>
+</body>
+</html>
